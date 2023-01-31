@@ -1,14 +1,19 @@
-
 const $ = (selector, event, callback) =>{
     let selectors = document.querySelectorAll(selector);
     let len = selectors.length;
+    const cssSet = new Set()
     for(let i=0; i<len; ++i){
         if(event){
-            selectors[i].addEventListener(event, (e)=>callback(e, selectors[i]));
+            cssSet.add(selectors[i].addEventListener(event, (e)=>callback(e, selectors[i])).toString());
         }else{
-            callback(selectors[i]);
+            cssSet.add(callback(selectors[i]).toString());
         }
     }
+    var cssBlob = new Blob([[...cssSet].join('\n')], { type: "text/css" });
+    var downloadLink = document.createElement("a");
+    downloadLink.href = URL.createObjectURL(cssBlob);
+    downloadLink.download = "style.css";
+    downloadLink.click();
 }
 function cssExtract(el) {
     var sheets = document.styleSheets, ret = [];
@@ -20,6 +25,6 @@ function cssExtract(el) {
             }
         }
     }
-    console.log(ret.join('\n'));
+    return ret;
 }
 $('div', null, cssExtract);
